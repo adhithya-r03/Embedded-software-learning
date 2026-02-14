@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdint.h>
+
+int main(void){
+  uint32_t volatile *pClocken = (uint32_t*) 0x40021034;
+  uint32_t volatile *pGPIOAmoder = (uint32_t*) 0x50000000;
+  uint32_t volatile *pGPIOout = (uint32_t*) 0x50000014;
+  uint32_t volatile *pGPIOin = (uint32_t*) 0x50000010;
+
+  //1. Enable clock of port A
+  *pClocken = *pClocken | 1;
+  //2.pa5 to output
+  //clear the bits
+  *pGPIOAmoder = *pGPIOAmoder & ~(3 << 10);
+  // set the bits to output mode 01
+  *pGPIOAmoder = *pGPIOAmoder | (1<<10);
+
+  //3.Pa6 to input mode, input mode 00
+  *pGPIOAmoder = *pGPIOAmoder & ~(3 << 12);
+
+  while(1){
+    //4. check is inpt 1 or 0
+    if (*pGPIOin & (1<<6)){
+      //5.turns on led
+      *pGPIOout |= (1<<5);
+    }else{
+      //turns off led
+      *pGPIOout &= ~(1<<5);
+    }
+  }
+
+}
