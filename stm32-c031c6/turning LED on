@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <stdint.h>
+
+int main(void){
+  uint32_t *pClocken = (uint32_t*) 0x40021034;
+  uint32_t *pGPIOAmoder = (uint32_t*) 0x50000000;
+  uint32_t *pGPIOout = (uint32_t*) 0x50000014;
+
+  //1. Enable clock
+  *pClocken = *pClocken | 1;
+  //2.pa5 to output
+  //clear the bits
+  *pGPIOAmode = *pGPIOAmode & ~(3 << 10);
+  // set the bits to output mode
+  *pGPIOAmode = *pGPIOAmode | (1<<10);
+
+  //3. give high to pin pa5
+  *pGPIOout = *pGPIOout | (1<<5);
+  while(1);
+
+}
