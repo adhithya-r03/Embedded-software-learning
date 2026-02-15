@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <stdint.h>
+
+int main(void){
+  uint32_t volatile *pClocken = (uint32_t*) 0x40021034;
+  uint32_t volatile *pGPIOAmoder = (uint32_t*) 0x50000000;
+  uint32_t volatile *pGPIOPULLup = (uint32_t*) 0x5000000C;
+  uint32_t volatile *pGPIOout = (uint32_t*) 0x50000014;
+  uint32_t volatile *pGPIOin = (uint32_t*) 0x50000010;
+
+  //1. Enable clock of port A
+  *pClocken = *pClocken | 1;
+
+  //Rows output:
+  // pa0
+  *pGPIOAmoder = *pGPIOAmoder & ~1;
+  *pGPIOAmoder = *pGPIOAmoder | 1;
+  //pa1
+  *pGPIOAmoder = *pGPIOAmoder & ~(3<<2);
+  *pGPIOAmoder = *pGPIOAmoder | (1<<2);
+  //pa4
+  *pGPIOAmoder = *pGPIOAmoder & ~(3<8);
+  *pGPIOAmoder = *pGPIOAmoder | (1<<8);
+  //pa5
+  *pGPIOAmoder = *pGPIOAmoder & ~(3<<10);
+  *pGPIOAmoder = *pGPIOAmoder | (1<<10);
+
+  // columns input:
+  //pa6,7,9,15
+  *pGPIOAmoder = *pGPIOAmoder & ~(3<<12);
+  *pGPIOAmoder = *pGPIOAmoder & ~(3<<14);
+  *pGPIOAmoder = *pGPIOAmoder & ~(3<<18);
+  *pGPIOAmoder = *pGPIOAmoder & ~(3<<30);
+
+  //columns pull up:
+  *pGPIOPULLup = *pGPIOPULLup | (1<<12);
+  *pGPIOPULLup = *pGPIOPULLup | (1<<14);
+  *pGPIOPULLup = *pGPIOPULLup | (1<<18);
+  *pGPIOPULLup = *pGPIOPULLup | (1<<30);
+
+  while(1){
+    // all pin high, pa0 low
+    *pGPIOout = *pGPIOout | (1<<1);
+    *pGPIOout = *pGPIOout | (1<<4);
+    *pGPIOout = *pGPIOout | (1<<5);
+    *pGPIOout = *pGPIOout | 1;
+
+    *pGPIOout = *pGPIOout & ~(1);
+    // scan all input 
+    if(!(*pGPIOin & (1<<6))){
+      printf("1\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<7))){
+      printf("2\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<9))){
+      printf("3\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<15))){
+      printf("A\n");
+      delay(200);
+    }
+
+    // repeat for all ouput pins
+    *pGPIOout = *pGPIOout | (1<<1);
+    *pGPIOout = *pGPIOout | (1<<4);
+    *pGPIOout = *pGPIOout | (1<<5);
+    *pGPIOout = *pGPIOout | 1;
+
+    *pGPIOout = *pGPIOout & ~(1<<1);
+    // scan all input 
+    if(!(*pGPIOin & (1<<6))){
+      printf("4\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<7))){
+      printf("5\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<9))){
+      printf("6\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<15))){
+      printf("B\n");
+      delay(200);
+    }
+
+    *pGPIOout = *pGPIOout | (1<<1);
+    *pGPIOout = *pGPIOout | (1<<4);
+    *pGPIOout = *pGPIOout | (1<<5);
+    *pGPIOout = *pGPIOout | 1;
+
+    *pGPIOout = *pGPIOout & ~(1<<4);
+    // scan all input 
+    if(!(*pGPIOin & (1<<6))){
+      printf("7\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<7))){
+      printf("8\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<9))){
+      printf("9\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<15))){
+      printf("C\n");
+      delay(200);
+    }
+    *pGPIOout = *pGPIOout | (1<<1);
+    *pGPIOout = *pGPIOout | (1<<4);
+    *pGPIOout = *pGPIOout | (1<<5);
+    *pGPIOout = *pGPIOout | 1;
+
+    *pGPIOout = *pGPIOout & ~(1<<5);
+    // scan all input 
+    if(!(*pGPIOin & (1<<6))){
+      printf("*\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<7))){
+      printf("0\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<9))){
+      printf("#\n");
+      delay(200);
+    }
+    if(!(*pGPIOin & (1<<15))){
+      printf("D\n");
+      delay(200);
+    }
+  }
+}
