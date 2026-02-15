@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include<stdint.h>
+
+typedef struct{
+    uint32_t gpioa_en:1;
+    uint32_t gpiob_en:1;
+    uint32_t gpioc_en:1;
+    uint32_t gpiod_en:1;
+    uint32_t reserve1:1;
+    uint32_t gpiof_en:1;
+    uint32_t reserve:26;
+}RCC_IO_EN_t;
+
+typedef struct{
+    uint32_t mode_0:2;
+    uint32_t mode_1:2;
+    uint32_t mode_2:2;
+    uint32_t mode_3:2;
+    uint32_t mode_4:2;
+    uint32_t mode_5:2;
+    uint32_t mode_6:2;
+    uint32_t mode_7:2;
+    uint32_t mode_8:2;
+    uint32_t mode_9:2;
+    uint32_t mode_10:2;
+    uint32_t mode_11:2;
+    uint32_t mode_12:2;
+    uint32_t mode_13:2;
+    uint32_t mode_14:2;
+    uint32_t mode_15:2;
+    uint32_t mode_16:2;
+}GPIOx_MODE_t;
+
+typedef struct{
+    uint32_t od_0:1;
+    uint32_t od_1:1;
+    uint32_t od_2:1;
+    uint32_t od_3:1;
+    uint32_t od_4:1;
+    uint32_t od_5:1;
+    uint32_t od_6:1;
+    uint32_t od_7:1;
+    uint32_t od_8:1;
+    uint32_t od_9:1;
+    uint32_t od_10:1;
+    uint32_t od_11:1;
+    uint32_t od_12:1;
+    uint32_t od_13:1;
+    uint32_t od_14:1;
+    uint32_t od_15:1;
+    uint32_t reserve:16;
+}GPIOx_ODR_t;
+
+typedef struct{
+    uint32_t id_0:1;
+    uint32_t id_1:1;
+    uint32_t id_2:1;
+    uint32_t id_3:1;
+    uint32_t id_4:1;
+    uint32_t id_5:1;
+    uint32_t id_6:1;
+    uint32_t id_7:1;
+    uint32_t id_8:1;
+    uint32_t id_9:1;
+    uint32_t id_10:1;
+    uint32_t id_11:1;
+    uint32_t id_12:1;
+    uint32_t id_13:1;
+    uint32_t id_14:1;
+    uint32_t id_15:1;
+    uint32_t reserve:16;
+}GPIOx_IDR_t;
+
+int main()
+{
+    RCC_IO_EN_t volatile *pClockIOen = (RCC_IO_EN_t*) 0x40021034;
+    GPIOx_MODE_t volatile *pGPIOAmode = (GPIOx_MODE_t*) 0x50000000;
+    GPIOx_ODR_t volatile *pGPIOAout = (GPIOx_ODR_t*) 0x50000014;
+    GPIOx_IDR_t volatile *pGPIOAin = (GPIOx_IDR_t*) 0x50000010;
+    // enable clock
+    pClockIOen->gpioa_en = 1;
+    //out mode for pa5
+    pGPIOAmode->mode_5=1;
+    //in mode for pa6
+    pGPIOAmode->mode_6=0;
+    
+    while(1){
+        if (pGPIOAin->id_6){
+            pGPIOAout->od_5 =1;
+        }else{
+            pGPIOAout->od_5 =0;
+        }
+    }
+    return 0;
+}
